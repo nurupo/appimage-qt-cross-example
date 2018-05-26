@@ -11,7 +11,8 @@ apt-get update
 apt-get install -y \
     binutils-arm-linux-gnueabi \
     gcc-arm-linux-gnueabi \
-    g++-arm-linux-gnueabi
+    g++-arm-linux-gnueabi \
+    qemu-user-static
 
 # Native ldd can't be ran on cross-compiled binaries, so we use xldd from the crosstool-ng project
 cp /repo/3rd-party/xldd/xldd.sh /usr/bin/arm-linux-gnueabi-ldd
@@ -37,7 +38,8 @@ apt-get install -y \
     cmake \
     make \
     qtbase5-dev-tools \
-    qt5-default
+    qt5-default \
+    qttools5-dev-tools
 
 apt-get install -y \
     qtbase5-dev:armel
@@ -149,7 +151,33 @@ echo '
 ' > /usr/bin/ldd
 chmod +x /usr/bin/ldd
 
-/usr/lib/x86_64-linux-gnu/qt5/bin/linuxdeployqt output/usr/share/applications/my_app.desktop -bundle-non-qt-libs -appimage -no-strip -qmake=/usr/lib/arm-linux-gnueabi/qt5/bin/qmake
+echo '
+#!/bin/sh
+/usr/bin/arm-linux-gnueabi-strip "$@"
+' > /usr/bin/strip
+chmod +x /usr/bin/strip
+
+echo '
+#!/bin/sh
+/usr/bin/qemu-arm-static /usr/lib/arm-linux-gnueabi/qt5/bin/qmake "$@"
+' > /usr/bin/qmake-armel
+chmod +x /usr/bin/qmake-armel
+
+mv /usr/local/bin/appimagetool /usr/local/bin/appimagetool.orig
+echo '
+#!/bin/sh
+/usr/bin/qemu-arm-static /usr/local/bin/appimagetool.orig "$@"
+' > /usr/local/bin/appimagetool
+chmod +x /usr/local/bin/appimagetool
+
+mv /usr/local/lib/appimagekit/mksquashfs /usr/local/lib/appimagekit/mksquashfs.orig
+echo '
+#!/bin/sh
+/usr/bin/qemu-arm-static /usr/local/lib/appimagekit/mksquashfs.orig "$@"
+' > /usr/local/lib/appimagekit/mksquashfs
+chmod +x /usr/local/lib/appimagekit/mksquashfs
+
+/usr/lib/x86_64-linux-gnu/qt5/bin/linuxdeployqt output/usr/share/applications/my_app.desktop -bundle-non-qt-libs -appimage -qmake=/usr/bin/qmake-armel
 
 # Check architecture of the binaries, all should be arm
 apt-get install -y \
@@ -157,3 +185,5 @@ apt-get install -y \
 file output/usr/lib/*
 file output/usr/bin/*
 file *.AppImage
+
+ls -lbh *.AppImage

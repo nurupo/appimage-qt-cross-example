@@ -380,11 +380,6 @@ do_process_file() {
     do_trace ": end search path\n"
 
     if [ -n "${initial}" ]; then
-        if ! "${readelf}" -Wl "${file}" |
-                "${grep}" 'Requesting program interpreter: ' >/dev/null; then
-            printf "	not a dynamic executable\n"
-            exit 1
-        fi
         info=`${readelf} -Wh "${file}"`
         need_e_class=`echo "${info}" | "${sed}" -nr 's/.*Class:[[:space:]]*//p'`
         need_e_mach=`echo "${info}" | "${sed}" -nr 's/.*Machine:[[:space:]]*//p'`
