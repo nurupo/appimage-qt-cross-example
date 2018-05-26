@@ -1,5 +1,7 @@
 ## AppImage Qt Cross-Compilation Example
 
+[![Build Status](https://travis-ci.org/nurupo/appimage-qt-cross-example.svg?branch=master)](https://travis-ci.org/nurupo/appimage-qt-cross-example)
+
 This repository is an attempt to cross-compile a basic Qt application to ARM and package it as an ARM AppImage, using Debian's `arm-linux-gnueabi` cross-compilation toolchain and `armel` packages.
 
 It is currently impossible to cross-compile an AppImage as both AppImageKit and linuxdeployqt projects support creating an AppImage package only for the host system's architecture, they lack the support of targeting other architectures.
