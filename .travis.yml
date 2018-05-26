@@ -5,3 +5,6 @@ services:
 
 script:
   - sudo docker run --rm -it -v $PWD:/repo debian:stretch-slim /bin/bash /repo/.travis.sh
+
+notifications:
+  email: false
